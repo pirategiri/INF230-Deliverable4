@@ -14,14 +14,17 @@ REFERENCE_POINTS: list[tuple[float, float, float]] = [
 
 # ----- 1. Initialisation -----
 
+
 def test_default_unit_is_celsius() -> None:
     """No unit given means Celsius."""
     assert Temperature(25).unit == "C"
+
 
 @pytest.mark.parametrize("unit", ["c", "C", "f", "F", "k", "K"])
 def test_units_are_case_insensitive(unit: str) -> None:
     """Lower and upper case units both work."""
     assert Temperature(10, unit).unit == unit.upper()
+
 
 def test_value_and_unit_are_read_only() -> None:
     """Trying to change value or unit raises AttributeError."""
@@ -33,11 +36,13 @@ def test_value_and_unit_are_read_only() -> None:
 
 # ----- 2. Validation -----
 
+
 @pytest.mark.parametrize("unit", ["X", "", "Celsius", "CC"])
 def test_invalid_unit(unit: str) -> None:
     """Unknown units raise ValueError."""
     with pytest.raises(ValueError):
         Temperature(0, unit)
+
 
 @pytest.mark.parametrize("value, unit",
                          [(-273.16, "C"), (-459.68, "F"), (-0.01, "K")])
@@ -46,12 +51,14 @@ def test_below_absolute_zero(value: float, unit: str) -> None:
     with pytest.raises(ValueError):
         Temperature(value, unit)
 
+
 def test_convert_to_invalid_unit() -> None:
     """convert_to rejects unknown units."""
     with pytest.raises(ValueError):
         Temperature(0).convert_to("X")
 
 # ----- 3. Conversions -----
+
 
 @pytest.mark.parametrize("celsius, fahrenheit, kelvin", REFERENCE_POINTS)
 def test_conversions(
@@ -69,6 +76,7 @@ def test_conversions(
 
 # ----- 4. Round trip -----
 
+
 @pytest.mark.parametrize("celsius", [-273.15, -40, 0, 37, 100, 1234.5])
 def test_round_trip(celsius: float) -> None:
     """C -> F -> K -> C gives back the original temperature."""
@@ -79,11 +87,13 @@ def test_round_trip(celsius: float) -> None:
 
 # ----- 5. Comparisons -----
 
+
 def test_equality_across_units() -> None:
     """The same temperature in different units is equal."""
     assert Temperature(0, "C") == Temperature(32, "F")
     assert Temperature(0, "C") == Temperature(273.15, "K")
     assert Temperature(0, "C") != Temperature(33, "F")
+
 
 def test_ordering_across_units() -> None:
     """<, <=, > and >= work between different units."""
@@ -96,10 +106,12 @@ def test_ordering_across_units() -> None:
     assert Temperature(0, "C") <= Temperature(32, "F")
     assert Temperature(0, "C") >= Temperature(32, "F")
 
+
 def test_tolerance() -> None:
     """Differences below 1e-9 count as equal, larger ones do not."""
     assert Temperature(0, "C") == Temperature(1e-10, "C")
     assert Temperature(0, "C") != Temperature(1e-6, "C")
+
 
 def test_comparison_with_other_types() -> None:
     """Comparing with a non-Temperature returns NotImplemented."""
@@ -112,12 +124,32 @@ def test_comparison_with_other_types() -> None:
 
 # ----- 6. Formatting -----
 
+
 def test_str() -> None:
     """str() gives two decimals and the unit."""
     assert str(Temperature(25, "C")) == "25.00 °C"
     assert str(Temperature(98.6, "f")) == "98.60 °F"
     assert str(Temperature(300, "K")) == "300.00 K"
 
+
 def test_repr() -> None:
     """repr() looks like the constructor call."""
     assert repr(Temperature(25, "c")) == "Temperature(25.0, 'C')"
+
+
+def test_invalid_conversion_unit():
+    temp = Temperature(25, "C")
+
+    with pytest.raises(ValueError):
+        temp.convert_to("X")
+
+
+def test_comparison_with_other_type():
+    temp = Temperature(25, "C")
+
+    assert temp.__eq__(25) is NotImplemented
+    assert temp.__ne__(25) is NotImplemented
+    assert temp.__lt__(25) is NotImplemented
+    assert temp.__le__(25) is NotImplemented
+    assert temp.__gt__(25) is NotImplemented
+    assert temp.__ge__(25) is NotImplemented

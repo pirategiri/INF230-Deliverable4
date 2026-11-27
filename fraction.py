@@ -1,14 +1,10 @@
 """Fraction class with automatic simplification."""
-
 from math import gcd
-
-
 class Fraction:
     """A fraction such as 3/4, stored in its simplest form."""
 
-    def __init__(self, numerator, denominator=1):
+    def __init__(self, numerator: int, denominator: int = 1) -> None:
         """Create a fraction.
-
         Both parts must be integers and the denominator must be > 0.
         The fraction is simplified, so Fraction(2, 4) becomes 1/2.
         """
@@ -21,14 +17,14 @@ class Fraction:
 
         # Divide both parts by their greatest common divisor.
         divisor = gcd(numerator, denominator)
-        self.numerator = numerator // divisor
-        self.denominator = denominator // divisor
+        self.numerator: int = numerator // divisor
+        self.denominator: int = denominator // divisor
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Return an unambiguous text, e.g. Fraction(1, 2)."""
         return f"Fraction({self.numerator}, {self.denominator})"
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return a readable text, e.g. 1/2 (or just 2 for 2/1)."""
         if self.denominator == 1:
             return str(self.numerator)
@@ -38,7 +34,7 @@ class Fraction:
     # a/b compared with c/d is the same as a*d compared with c*b
     # (valid because both denominators are positive).
 
-    def _difference(self, other):
+    def _difference(self, other: "Fraction") -> int:
         """Return self.numerator*other.denominator minus the cross product.
 
         The result is negative, zero or positive, which tells us whether
@@ -47,50 +43,50 @@ class Fraction:
         return (self.numerator * other.denominator
                 - other.numerator * self.denominator)
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         """Return True if both fractions have the same value."""
         if not isinstance(other, Fraction):
             return NotImplemented
         return self._difference(other) == 0
 
-    def __ne__(self, other):
+    def __ne__(self, other: object) -> bool:
         """Return True if the fractions have different values."""
         result = self.__eq__(other)
         if result is NotImplemented:
             return result
         return not result
 
-    def __lt__(self, other):
+    def __lt__(self, other: "Fraction") -> bool:
         """Return True if self is smaller than other."""
         if not isinstance(other, Fraction):
             return NotImplemented
         return self._difference(other) < 0
 
-    def __le__(self, other):
+    def __le__(self, other: "Fraction") -> bool:
         """Return True if self is smaller than or equal to other."""
         if not isinstance(other, Fraction):
             return NotImplemented
         return self._difference(other) <= 0
 
-    def __gt__(self, other):
+    def __gt__(self, other: "Fraction") -> bool:
         """Return True if self is greater than other."""
         if not isinstance(other, Fraction):
             return NotImplemented
         return self._difference(other) > 0
 
-    def __ge__(self, other):
+    def __ge__(self, other: "Fraction") -> bool:
         """Return True if self is greater than or equal to other."""
         if not isinstance(other, Fraction):
             return NotImplemented
         return self._difference(other) >= 0
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         """Return a hash so fractions can be used in sets and dicts."""
         return hash((self.numerator, self.denominator))
 
     # ----- Other special methods -----
 
-    def __add__(self, other):
+    def __add__(self, other: "Fraction") -> "Fraction":
         """Return self + other as a new Fraction."""
         if not isinstance(other, Fraction):
             return NotImplemented
@@ -99,20 +95,20 @@ class Fraction:
         new_den = self.denominator * other.denominator
         return Fraction(new_num, new_den)
 
-    def __sub__(self, other):
+    def __sub__(self, other: "Fraction") -> "Fraction":
         """Return self - other as a new Fraction."""
         if not isinstance(other, Fraction):
             return NotImplemented
         return self + (-other)
 
-    def __mul__(self, other):
+    def __mul__(self, other: "Fraction") -> "Fraction":
         """Return self * other as a new Fraction."""
         if not isinstance(other, Fraction):
             return NotImplemented
         return Fraction(self.numerator * other.numerator,
                         self.denominator * other.denominator)
 
-    def __truediv__(self, other):
+    def __truediv__(self, other: "Fraction") -> "Fraction":
         """Return self / other as a new Fraction.
 
         Raises ZeroDivisionError when dividing by zero.
@@ -128,14 +124,14 @@ class Fraction:
             new_num, new_den = -new_num, -new_den
         return Fraction(new_num, new_den)
 
-    def __neg__(self):
+    def __neg__(self) -> "Fraction":
         """Return the negative of this fraction, e.g. -(1/2) = -1/2."""
         return Fraction(-self.numerator, self.denominator)
 
-    def __abs__(self):
+    def __abs__(self) -> "Fraction":
         """Return the absolute value, e.g. abs(-1/2) = 1/2."""
         return Fraction(abs(self.numerator), self.denominator)
 
-    def __float__(self):
+    def __float__(self) -> float:
         """Return the decimal value, e.g. float(1/4) = 0.25."""
         return self.numerator / self.denominator

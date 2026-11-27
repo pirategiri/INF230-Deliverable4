@@ -1,21 +1,18 @@
-"""Temperature class that supports Celsius, Fahrenheit and Kelvin."""
+"""Temperature class that supports Celsius, Fahrenheit and Kelvin."""\
 
 # Two temperatures closer than this are treated as equal. Floating-point
 # numbers are not exact, so we never compare them with a plain ==.
-TOLERANCE = 1e-9
+TOLERANCE: float = 1e-9
 
 # The only units the class accepts.
-VALID_UNITS = ("C", "F", "K")
+VALID_UNITS: tuple[str, ...] = ("C", "F", "K")
 
-
-def is_close(a, b):
+def is_close(a: float, b: float) -> bool:
     """Return True if the numbers a and b differ by less than TOLERANCE."""
     return abs(a - b) <= TOLERANCE
 
-
-def to_kelvin_from(value, unit):
+def to_kelvin_from(value: float, unit: str) -> float:
     """Convert a number in the given unit ("C", "F" or "K") to Kelvin.
-
     Every comparison and conversion goes through Kelvin, so we only need
     one formula per unit instead of one for every pair of units.
     """
@@ -25,13 +22,11 @@ def to_kelvin_from(value, unit):
         return (value - 32) * 5 / 9 + 273.15
     return value  # already Kelvin
 
-
 class Temperature:
     """A temperature with a value and a unit (C, F or K)."""
 
-    def __init__(self, value, unit="C"):
+    def __init__(self, value: int | float, unit: str = "C") -> None:
         """Create a temperature.
-
         Raises ValueError if the unit is not C, F or K (any letter case),
         or if the temperature is below absolute zero (0 K).
         """
@@ -50,32 +45,32 @@ class Temperature:
             raise ValueError("Temperature is below absolute zero.")
 
         # A leading underscore is a Python convention for "private".
-        self._value = float(value)
-        self._unit = unit
+        self._value: float = float(value)
+        self._unit: str = unit
 
     @property
-    def value(self):
+    def value(self) -> float:
         """Return the numeric value (read-only, there is no setter)."""
         return self._value
 
     @property
-    def unit(self):
+    def unit(self) -> str:
         """Return the unit letter (read-only, there is no setter)."""
         return self._unit
 
-    def to_kelvin(self):
+    def to_kelvin(self) -> float:
         """Return this temperature as a float in Kelvin."""
         return to_kelvin_from(self._value, self._unit)
 
-    def to_celsius(self):
+    def to_celsius(self) -> float:
         """Return this temperature as a float in Celsius."""
         return self.to_kelvin() - 273.15
 
-    def to_fahrenheit(self):
+    def to_fahrenheit(self) -> float:
         """Return this temperature as a float in Fahrenheit."""
         return (self.to_kelvin() - 273.15) * 9 / 5 + 32
 
-    def convert_to(self, target_unit):
+    def convert_to(self, target_unit: str) -> "Temperature":
         """Return a NEW Temperature in target_unit (case-insensitive).
 
         Raises ValueError if target_unit is not C, F or K.
@@ -94,30 +89,30 @@ class Temperature:
             new_value = max(self.to_kelvin(), 0.0)
         return Temperature(new_value, target_unit)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Return an unambiguous text, e.g. Temperature(25.0, 'C')."""
         return f"Temperature({self._value}, '{self._unit}')"
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return a readable text with two decimals, e.g. 25.00 °C."""
         if self._unit == "K":
             return f"{self._value:.2f} K"
         return f"{self._value:.2f} °{self._unit}"
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         """Return True if both temperatures are equal (any unit)."""
         if not isinstance(other, Temperature):
             return NotImplemented  # lets Python try other options
         return is_close(self.to_kelvin(), other.to_kelvin())
 
-    def __ne__(self, other):
+    def __ne__(self, other: object) -> bool:
         """Return True if the temperatures are not equal."""
         result = self.__eq__(other)
         if result is NotImplemented:
             return result
         return not result
 
-    def __lt__(self, other):
+    def __lt__(self, other: "Temperature") -> bool:
         """Return True if this temperature is colder than other."""
         if not isinstance(other, Temperature):
             return NotImplemented
@@ -125,19 +120,19 @@ class Temperature:
         return (self.to_kelvin() < other.to_kelvin()
                 and not is_close(self.to_kelvin(), other.to_kelvin()))
 
-    def __le__(self, other):
+    def __le__(self, other: "Temperature") -> bool:
         """Return True if this temperature is colder than or equal."""
         if not isinstance(other, Temperature):
             return NotImplemented
         return self < other or self == other
 
-    def __gt__(self, other):
+    def __gt__(self, other: "Temperature") -> bool:
         """Return True if this temperature is warmer than other."""
         if not isinstance(other, Temperature):
             return NotImplemented
         return other < self
 
-    def __ge__(self, other):
+    def __ge__(self, other: "Temperature") -> bool:
         """Return True if this temperature is warmer than or equal."""
         if not isinstance(other, Temperature):
             return NotImplemented
